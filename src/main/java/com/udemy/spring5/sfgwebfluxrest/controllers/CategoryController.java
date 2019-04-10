@@ -2,10 +2,9 @@ package com.udemy.spring5.sfgwebfluxrest.controllers;
 
 import com.udemy.spring5.sfgwebfluxrest.domain.Category;
 import com.udemy.spring5.sfgwebfluxrest.repositories.CategoryRepository;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.reactivestreams.Publisher;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -20,13 +19,20 @@ public class CategoryController {
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Flux<Category> getAllCategories() {
         return categoryRepository.findAll();
     }
 
     @GetMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Mono<Category> getCategoryById(@PathVariable String id) {
         return categoryRepository.findById(id);
     }
 
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<Void> saveCategory(@RequestBody Publisher<Category> categoryPublisher) {
+        return categoryRepository.saveAll(categoryPublisher).then();
+    }
 }
