@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 public class VendorControllerTest {
 
@@ -88,5 +89,22 @@ public class VendorControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    public void testPatchCategory() {
+        given(vendorRepository.findById(anyString())).willReturn(Mono.just(Vendor.builder().build()));
+
+        given(vendorRepository.save(any(Vendor.class))).willReturn(Mono.just(Vendor.builder().build()));
+
+        Mono<Vendor> categoryMono = Mono.just(Vendor.builder().firstName("First Name").lastName("Last Name").build());
+
+        webTestClient.patch().uri("/api/v1/vendors/id")
+                .body(categoryMono, Vendor.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        verify(vendorRepository).save(any(Vendor.class));
     }
 }

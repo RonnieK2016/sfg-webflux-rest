@@ -4,6 +4,7 @@ import com.udemy.spring5.sfgwebfluxrest.domain.Vendor;
 import com.udemy.spring5.sfgwebfluxrest.repositories.VendorRepository;
 import org.reactivestreams.Publisher;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -40,5 +41,28 @@ public class VendorController {
     public Mono<Vendor> updateVendor(@PathVariable String id, @RequestBody Vendor vendor) {
         vendor.setId(id);
         return vendorRepository.save(vendor);
+    }
+
+    @PatchMapping("{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<Vendor> patchVendor(@PathVariable String id, @RequestBody Vendor vendor) {
+        Vendor savedVendor = vendorRepository.findById(id).block();
+
+        boolean isUpdated = false;
+
+        if(savedVendor != null)
+        {
+            if(!StringUtils.isEmpty(vendor.getLastName()) && !vendor.getLastName().equals(savedVendor.getLastName())) {
+                savedVendor.setLastName(vendor.getLastName());
+                isUpdated = true;
+            }
+
+            if(!StringUtils.isEmpty(vendor.getFirstName()) && !vendor.getFirstName().equals(savedVendor.getFirstName())) {
+                savedVendor.setFirstName(vendor.getFirstName());
+                isUpdated = true;
+            }
+        }
+
+        return isUpdated ? vendorRepository.save(savedVendor) : Mono.just(savedVendor);
     }
 }

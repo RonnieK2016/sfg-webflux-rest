@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static reactor.core.publisher.Mono.when;
 
 public class CategoryControllerTest {
@@ -87,5 +88,22 @@ public class CategoryControllerTest {
                 .exchange()
                 .expectStatus()
                 .isOk();
+    }
+
+    @Test
+    public void testPatchCategory() {
+        given(categoryRepository.findById(anyString())).willReturn(Mono.just(Category.builder().build()));
+
+        given(categoryRepository.save(any(Category.class))).willReturn(Mono.just(Category.builder().build()));
+
+        Mono<Category> categoryMono = Mono.just(Category.builder().description("Test Description").build());
+
+        webTestClient.patch().uri("/api/v1/categories/id")
+                .body(categoryMono, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
+
+        verify(categoryRepository).save(any(Category.class));
     }
 }
