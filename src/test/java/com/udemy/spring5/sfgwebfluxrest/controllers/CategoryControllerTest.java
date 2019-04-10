@@ -4,6 +4,7 @@ import com.udemy.spring5.sfgwebfluxrest.domain.Category;
 import com.udemy.spring5.sfgwebfluxrest.repositories.CategoryRepository;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -71,5 +72,20 @@ public class CategoryControllerTest {
                 .exchange()
                 .expectStatus()
                 .isCreated();
+    }
+
+    @Test
+    public void testUpdateCategory() {
+        given(categoryRepository.save(any(Category.class))).willReturn(
+                Mono.just(Category.builder().build())
+        );
+
+        Mono<Category> toSave = Mono.just(Category.builder().build());
+
+        webTestClient.put().uri("/api/v1/categories/id")
+                .body(toSave, Category.class)
+                .exchange()
+                .expectStatus()
+                .isOk();
     }
 }
